@@ -1,0 +1,1964 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Universe Explorer</title>
+
+<style>
+:root{
+    --bg:#02050b;
+    --panel:rgba(5,12,23,.78);
+    --border:rgba(255,255,255,.11);
+    --text:#eef7ff;
+    --muted:#91a2b8;
+    --accent:#72c8ff;
+}
+
+*{
+    box-sizing:border-box;
+}
+
+html,body{
+    margin:0;
+    width:100%;
+    height:100%;
+    overflow:hidden;
+    background:#000;
+    color:var(--text);
+    font-family:Inter,Arial,sans-serif;
+}
+
+body{
+    position:relative;
+}
+
+#space{
+    position:absolute;
+    inset:0;
+}
+
+canvas{
+    display:block;
+}
+
+/* ---------------- UI ---------------- */
+
+.ui{
+    position:absolute;
+    inset:0;
+    pointer-events:none;
+}
+
+.topbar{
+    position:absolute;
+    top:18px;
+    left:18px;
+    right:18px;
+
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+
+    pointer-events:auto;
+
+    padding:12px 16px;
+
+    border:1px solid var(--border);
+    border-radius:16px;
+
+    background:rgba(3,8,17,.64);
+    backdrop-filter:blur(18px);
+
+    box-shadow:
+        0 10px 40px rgba(0,0,0,.4),
+        inset 0 1px rgba(255,255,255,.04);
+}
+
+.brand{
+    display:flex;
+    align-items:center;
+    gap:10px;
+}
+
+.logo{
+    width:34px;
+    height:34px;
+
+    display:grid;
+    place-items:center;
+
+    border-radius:50%;
+
+    background:
+        radial-gradient(circle at 35% 30%,#fff,#73d4ff 25%,#166aa0 55%,#020812 70%);
+
+    box-shadow:
+        0 0 20px rgba(74,190,255,.45);
+}
+
+.brand strong{
+    font-size:14px;
+    letter-spacing:.12em;
+    text-transform:uppercase;
+}
+
+.brand span{
+    display:block;
+    color:var(--muted);
+    font-size:10px;
+    margin-top:2px;
+}
+
+.search{
+    width:min(360px,42vw);
+}
+
+.search input{
+    width:100%;
+    padding:10px 14px;
+
+    border:1px solid var(--border);
+    border-radius:12px;
+
+    outline:none;
+
+    color:white;
+    background:rgba(255,255,255,.045);
+}
+
+.search input:focus{
+    border-color:rgba(114,200,255,.5);
+    box-shadow:0 0 0 3px rgba(114,200,255,.08);
+}
+
+/* left panel */
+
+.left-panel{
+    position:absolute;
+
+    left:18px;
+    top:88px;
+    bottom:18px;
+
+    width:230px;
+
+    padding:14px;
+
+    pointer-events:auto;
+
+    border:1px solid var(--border);
+    border-radius:18px;
+
+    background:var(--panel);
+    backdrop-filter:blur(18px);
+
+    box-shadow:0 20px 50px rgba(0,0,0,.35);
+
+    overflow:auto;
+}
+
+.section-title{
+    font-size:10px;
+    letter-spacing:.16em;
+    color:var(--muted);
+    text-transform:uppercase;
+    margin:8px 5px 10px;
+}
+
+.object-button{
+    width:100%;
+
+    display:flex;
+    align-items:center;
+    gap:10px;
+
+    padding:10px;
+
+    margin-bottom:6px;
+
+    border:1px solid transparent;
+    border-radius:10px;
+
+    background:transparent;
+
+    color:#dce9f5;
+    text-align:left;
+
+    cursor:pointer;
+}
+
+.object-button:hover{
+    background:rgba(255,255,255,.055);
+    border-color:var(--border);
+}
+
+.object-dot{
+    width:8px;
+    height:8px;
+    border-radius:50%;
+    background:#fff;
+    box-shadow:0 0 12px currentColor;
+}
+
+/* right information */
+
+.info-panel{
+    position:absolute;
+
+    right:18px;
+    top:88px;
+
+    width:290px;
+
+    padding:18px;
+
+    pointer-events:auto;
+
+    border:1px solid var(--border);
+    border-radius:18px;
+
+    background:var(--panel);
+    backdrop-filter:blur(18px);
+
+    box-shadow:0 20px 50px rgba(0,0,0,.35);
+}
+
+.object-type{
+    color:var(--accent);
+
+    font-size:10px;
+    letter-spacing:.16em;
+    text-transform:uppercase;
+
+    margin-bottom:7px;
+}
+
+.object-name{
+    font-size:25px;
+    font-weight:600;
+
+    margin-bottom:4px;
+}
+
+.description{
+    color:var(--muted);
+    font-size:12px;
+    line-height:1.6;
+
+    margin-bottom:18px;
+}
+
+.data{
+    display:grid;
+    gap:8px;
+}
+
+.data-row{
+    display:flex;
+    justify-content:space-between;
+    gap:12px;
+
+    padding-bottom:8px;
+
+    border-bottom:1px solid rgba(255,255,255,.06);
+
+    font-size:11px;
+}
+
+.data-row span:first-child{
+    color:var(--muted);
+}
+
+.data-row span:last-child{
+    text-align:right;
+}
+
+/* bottom controls */
+
+.controls{
+    position:absolute;
+
+    bottom:18px;
+    left:50%;
+    transform:translateX(-50%);
+
+    display:flex;
+    align-items:center;
+    gap:8px;
+
+    padding:9px;
+
+    pointer-events:auto;
+
+    border:1px solid var(--border);
+    border-radius:15px;
+
+    background:rgba(3,8,17,.72);
+    backdrop-filter:blur(18px);
+}
+
+.control-btn{
+    min-width:42px;
+    height:38px;
+
+    padding:0 12px;
+
+    border:1px solid var(--border);
+    border-radius:9px;
+
+    color:#dbeeff;
+    background:rgba(255,255,255,.045);
+
+    cursor:pointer;
+}
+
+.control-btn:hover{
+    background:rgba(255,255,255,.1);
+}
+
+.speed{
+    color:var(--muted);
+    font-size:11px;
+
+    padding:0 8px;
+}
+
+/* object label */
+
+#label{
+    position:absolute;
+
+    display:none;
+
+    padding:6px 9px;
+
+    border-radius:8px;
+
+    color:white;
+
+    background:rgba(2,7,14,.75);
+
+    border:1px solid rgba(255,255,255,.1);
+
+    backdrop-filter:blur(10px);
+
+    font-size:11px;
+
+    pointer-events:none;
+
+    white-space:nowrap;
+}
+
+/* mobile */
+
+@media(max-width:800px){
+
+    .left-panel{
+        width:190px;
+    }
+
+    .info-panel{
+        width:240px;
+    }
+
+    .search{
+        width:40%;
+    }
+}
+
+@media(max-width:600px){
+
+    .topbar{
+        top:8px;
+        left:8px;
+        right:8px;
+    }
+
+    .left-panel{
+        left:8px;
+        top:auto;
+        bottom:70px;
+
+        width:145px;
+
+        max-height:35vh;
+    }
+
+    .info-panel{
+        right:8px;
+        top:auto;
+        bottom:70px;
+
+        width:190px;
+
+        max-height:35vh;
+        overflow:auto;
+    }
+
+    .object-name{
+        font-size:19px;
+    }
+
+    .description{
+        font-size:10px;
+    }
+
+    .controls{
+        bottom:8px;
+        max-width:94vw;
+        overflow:auto;
+    }
+
+    .search{
+        display:none;
+    }
+
+    .brand strong{
+        font-size:11px;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<div id="space"></div>
+
+<div class="ui">
+
+    <!-- TOP -->
+
+    <header class="topbar">
+
+        <div class="brand">
+
+            <div class="logo">✦</div>
+
+            <div>
+                <strong>Universe Explorer</strong>
+                <span>Interactive 3D Space Sandbox</span>
+            </div>
+
+        </div>
+
+        <div class="search">
+            <input
+                id="search"
+                type="search"
+                placeholder="Search Earth, Mars, Sun..."
+            >
+        </div>
+
+    </header>
+
+
+    <!-- LEFT -->
+
+    <aside class="left-panel">
+
+        <div class="section-title">
+            Explore
+        </div>
+
+        <button class="object-button" data-object="Sun">
+            <span class="object-dot" style="color:#ffd86b"></span>
+            Sun
+        </button>
+
+        <button class="object-button" data-object="Earth">
+            <span class="object-dot" style="color:#5bbcff"></span>
+            Earth
+        </button>
+
+        <button class="object-button" data-object="Mars">
+            <span class="object-dot" style="color:#ff754e"></span>
+            Mars
+        </button>
+
+        <button class="object-button" data-object="Jupiter">
+            <span class="object-dot" style="color:#d6a56b"></span>
+            Jupiter
+        </button>
+
+        <button class="object-button" data-object="Saturn">
+            <span class="object-dot" style="color:#e4c27d"></span>
+            Saturn
+        </button>
+
+        <button class="object-button" data-object="Black Hole">
+            <span class="object-dot" style="color:#c987ff"></span>
+            Black Hole
+        </button>
+
+        <button class="object-button" data-object="Pulsar">
+            <span class="object-dot" style="color:#72d7ff"></span>
+            Pulsar
+        </button>
+
+        <button class="object-button" data-object="Quasar">
+            <span class="object-dot" style="color:#ffb86b"></span>
+            Quasar
+        </button>
+
+        <div class="section-title">
+            Systems
+        </div>
+
+        <button class="object-button" data-object="Solar System">
+            ☀ Solar System
+        </button>
+
+        <button class="object-button" data-object="Deep Space">
+            ✦ Deep Space
+        </button>
+
+    </aside>
+
+
+    <!-- INFORMATION -->
+
+    <aside class="info-panel">
+
+        <div class="object-type" id="type">
+            PLANET
+        </div>
+
+        <div class="object-name" id="name">
+            Earth
+        </div>
+
+        <div class="description" id="description">
+            Our home planet. Select an object to inspect it.
+        </div>
+
+        <div class="data">
+
+            <div class="data-row">
+                <span>Radius</span>
+                <span id="radius">6,371 km</span>
+            </div>
+
+            <div class="data-row">
+                <span>Mass</span>
+                <span id="mass">5.972 × 10²⁴ kg</span>
+            </div>
+
+            <div class="data-row">
+                <span>Distance</span>
+                <span id="distance">1 AU</span>
+            </div>
+
+            <div class="data-row">
+                <span>Category</span>
+                <span id="category">Terrestrial</span>
+            </div>
+
+        </div>
+
+    </aside>
+
+
+    <!-- CONTROLS -->
+
+    <div class="controls">
+
+        <button class="control-btn" id="reset">
+            ⟳
+        </button>
+
+        <button class="control-btn" id="pause">
+            ❚❚
+        </button>
+
+        <button class="control-btn" id="slower">
+            −
+        </button>
+
+        <div class="speed" id="speed">
+            1×
+        </div>
+
+        <button class="control-btn" id="faster">
+            +
+        </button>
+
+        <button class="control-btn" id="labels">
+            Labels
+        </button>
+
+    </div>
+
+</div>
+
+<div id="label"></div>
+
+
+<script type="importmap">
+{
+    "imports": {
+        "three":
+        "https://cdn.jsdelivr.net/npm/three@0.186.0/build/three.module.js",
+
+        "three/addons/":
+        "https://cdn.jsdelivr.net/npm/three@0.186.0/examples/jsm/"
+    }
+}
+</script>
+
+
+<script type="module">
+
+import * as THREE from "three";
+
+import {
+    OrbitControls
+}
+from "three/addons/controls/OrbitControls.js";
+
+
+// =====================================================
+// BASIC SETUP
+// =====================================================
+
+const container =
+    document.getElementById("space");
+
+const scene =
+    new THREE.Scene();
+
+scene.background =
+    new THREE.Color(0x01040a);
+
+
+// CAMERA
+
+const camera =
+    new THREE.PerspectiveCamera(
+        55,
+        window.innerWidth / window.innerHeight,
+        0.01,
+        5000
+    );
+
+camera.position.set(
+    0,
+    7,
+    18
+);
+
+
+// RENDERER
+
+const renderer =
+    new THREE.WebGLRenderer({
+        antialias:true,
+        powerPreference:"high-performance"
+    });
+
+renderer.setPixelRatio(
+    Math.min(window.devicePixelRatio, 2)
+);
+
+renderer.setSize(
+    window.innerWidth,
+    window.innerHeight
+);
+
+renderer.outputColorSpace =
+    THREE.SRGBColorSpace;
+
+container.appendChild(
+    renderer.domElement
+);
+
+
+// CONTROLS
+
+const controls =
+    new OrbitControls(
+        camera,
+        renderer.domElement
+    );
+
+controls.enableDamping = true;
+
+controls.dampingFactor = .045;
+
+controls.minDistance = 1;
+
+controls.maxDistance = 3000;
+
+
+// =====================================================
+// LIGHTING
+// =====================================================
+
+const ambient =
+    new THREE.AmbientLight(
+        0x405060,
+        .25
+    );
+
+scene.add(ambient);
+
+
+const sunLight =
+    new THREE.PointLight(
+        0xffffff,
+        4,
+        0,
+        1.5
+    );
+
+sunLight.position.set(
+    0,
+    0,
+    0
+);
+
+scene.add(sunLight);
+
+
+// =====================================================
+// STARFIELD
+// =====================================================
+
+function createStars(
+    count,
+    spread,
+    size
+){
+
+    const geometry =
+        new THREE.BufferGeometry();
+
+    const positions =
+        new Float32Array(
+            count * 3
+        );
+
+    for(
+        let i=0;
+        i<count;
+        i++
+    ){
+
+        const i3=i*3;
+
+        positions[i3] =
+            (Math.random()-.5)*spread;
+
+        positions[i3+1] =
+            (Math.random()-.5)*spread;
+
+        positions[i3+2] =
+            (Math.random()-.5)*spread;
+
+    }
+
+    geometry.setAttribute(
+        "position",
+        new THREE.BufferAttribute(
+            positions,
+            3
+        )
+    );
+
+    const material =
+        new THREE.PointsMaterial({
+
+            color:0xffffff,
+
+            size:size,
+
+            transparent:true,
+
+            opacity:.8,
+
+            sizeAttenuation:true
+
+        });
+
+    return new THREE.Points(
+        geometry,
+        material
+    );
+}
+
+
+const stars =
+    createStars(
+        12000,
+        2500,
+        .7
+    );
+
+scene.add(stars);
+
+
+// =====================================================
+// PLANET CREATION
+// =====================================================
+
+const objects = {};
+
+function createPlanet(
+    name,
+    radius,
+    color,
+    distance,
+    orbitSpeed
+){
+
+    const group =
+        new THREE.Group();
+
+    group.userData.name =
+        name;
+
+    const geometry =
+        new THREE.SphereGeometry(
+            radius,
+            64,
+            64
+        );
+
+    const material =
+        new THREE.MeshStandardMaterial({
+
+            color:color,
+
+            roughness:.75,
+
+            metalness:.05
+
+        });
+
+    const planet =
+        new THREE.Mesh(
+            geometry,
+            material
+        );
+
+    planet.position.x =
+        distance;
+
+    group.add(
+        planet
+    );
+
+    group.userData.planet =
+        planet;
+
+    group.userData.distance =
+        distance;
+
+    group.userData.speed =
+        orbitSpeed;
+
+    scene.add(
+        group
+    );
+
+    objects[name]=group;
+
+    return group;
+}
+
+
+// =====================================================
+// SUN
+// =====================================================
+
+const sunGeometry =
+    new THREE.SphereGeometry(
+        2.5,
+        64,
+        64
+    );
+
+const sunMaterial =
+    new THREE.MeshBasicMaterial({
+        color:0xffcc66
+    });
+
+const sun =
+    new THREE.Mesh(
+        sunGeometry,
+        sunMaterial
+    );
+
+scene.add(sun);
+
+objects["Sun"]=sun;
+
+
+// SUN GLOW
+
+const glowGeometry =
+    new THREE.SphereGeometry(
+        3.3,
+        64,
+        64
+    );
+
+const glowMaterial =
+    new THREE.MeshBasicMaterial({
+
+        color:0xffb347,
+
+        transparent:true,
+
+        opacity:.12,
+
+        blending:
+            THREE.AdditiveBlending
+
+    });
+
+const sunGlow =
+    new THREE.Mesh(
+        glowGeometry,
+        glowMaterial
+    );
+
+sun.add(
+    sunGlow
+);
+
+
+// =====================================================
+// PLANETS
+// =====================================================
+
+createPlanet(
+    "Mercury",
+    .25,
+    0x9d9184,
+    4,
+    .015
+);
+
+createPlanet(
+    "Venus",
+    .42,
+    0xd9a85f,
+    5.5,
+    .011
+);
+
+const earth =
+    createPlanet(
+        "Earth",
+        .45,
+        0x3e86c7,
+        7,
+        .009
+    );
+
+createPlanet(
+    "Mars",
+    .34,
+    0xb64d35,
+    8.7,
+    .007
+);
+
+createPlanet(
+    "Jupiter",
+    1.25,
+    0xc28b62,
+    12,
+    .004
+);
+
+createPlanet(
+    "Saturn",
+    .95,
+    0xd2b47d,
+    16,
+    .003
+);
+
+createPlanet(
+    "Uranus",
+    .65,
+    0x74cbd0,
+    20,
+    .002
+);
+
+createPlanet(
+    "Neptune",
+    .62,
+    0x4169c1,
+    24,
+    .0015
+);
+
+
+// =====================================================
+// EARTH ATMOSPHERE
+// =====================================================
+
+const atmosphere =
+    new THREE.Mesh(
+
+        new THREE.SphereGeometry(
+            .51,
+            48,
+            48
+        ),
+
+        new THREE.MeshBasicMaterial({
+
+            color:0x4ebcff,
+
+            transparent:true,
+
+            opacity:.15,
+
+            blending:
+                THREE.AdditiveBlending,
+
+            side:
+                THREE.BackSide
+
+        })
+
+    );
+
+earth.userData.planet.add(
+    atmosphere
+);
+
+
+// =====================================================
+// MOON
+// =====================================================
+
+const moon =
+    new THREE.Mesh(
+
+        new THREE.SphereGeometry(
+            .12,
+            32,
+            32
+        ),
+
+        new THREE.MeshStandardMaterial({
+            color:0xb9b9b9
+        })
+
+    );
+
+moon.position.x =
+    .8;
+
+earth.userData.planet.add(
+    moon
+);
+
+
+// =====================================================
+// ORBIT RINGS
+// =====================================================
+
+function createOrbit(
+    radius
+){
+
+    const points=[];
+
+    for(
+        let i=0;
+        i<=128;
+        i++
+    ){
+
+        const a =
+            (i/128) *
+            Math.PI*2;
+
+        points.push(
+
+            new THREE.Vector3(
+
+                Math.cos(a)*radius,
+                0,
+                Math.sin(a)*radius
+
+            )
+
+        );
+
+    }
+
+    const geometry =
+        new THREE.BufferGeometry()
+        .setFromPoints(points);
+
+    const material =
+        new THREE.LineBasicMaterial({
+
+            color:0x27445a,
+
+            transparent:true,
+
+            opacity:.45
+
+        });
+
+    const line =
+        new THREE.Line(
+            geometry,
+            material
+        );
+
+    scene.add(line);
+
+}
+
+[4,5.5,7,8.7,12,16,20,24]
+.forEach(createOrbit);
+
+
+// =====================================================
+// BLACK HOLE
+// =====================================================
+
+const blackHole =
+    new THREE.Group();
+
+blackHole.position.set(
+    -20,
+    3,
+    -20
+);
+
+const hole =
+    new THREE.Mesh(
+
+        new THREE.SphereGeometry(
+            1.4,
+            64,
+            64
+        ),
+
+        new THREE.MeshBasicMaterial({
+            color:0x000000
+        })
+
+    );
+
+blackHole.add(hole);
+
+
+// ACCRETION DISK
+
+const diskGeometry =
+    new THREE.RingGeometry(
+        2,
+        5,
+        128
+    );
+
+const diskMaterial =
+    new THREE.MeshBasicMaterial({
+
+        color:0xff6a22,
+
+        transparent:true,
+
+        opacity:.72,
+
+        side:THREE.DoubleSide,
+
+        blending:
+            THREE.AdditiveBlending
+
+    });
+
+const disk =
+    new THREE.Mesh(
+        diskGeometry,
+        diskMaterial
+    );
+
+disk.rotation.x =
+    Math.PI/2;
+
+blackHole.add(
+    disk
+);
+
+
+// GLOW
+
+const holeGlow =
+    new THREE.Mesh(
+
+        new THREE.SphereGeometry(
+            2,
+            64,
+            64
+        ),
+
+        new THREE.MeshBasicMaterial({
+
+            color:0xff5518,
+
+            transparent:true,
+
+            opacity:.08,
+
+            blending:
+                THREE.AdditiveBlending
+
+        })
+
+    );
+
+blackHole.add(
+    holeGlow
+);
+
+scene.add(
+    blackHole
+);
+
+objects["Black Hole"]=
+    blackHole;
+
+
+// =====================================================
+// PULSAR
+// =====================================================
+
+const pulsar =
+    new THREE.Group();
+
+pulsar.position.set(
+    15,
+    6,
+    -12
+);
+
+const pulsarCore =
+    new THREE.Mesh(
+
+        new THREE.SphereGeometry(
+            .5,
+            32,
+            32
+        ),
+
+        new THREE.MeshBasicMaterial({
+            color:0x9eeaff
+        })
+
+    );
+
+pulsar.add(
+    pulsarCore
+);
+
+
+// BEAMS
+
+for(
+    let i=0;
+    i<2;
+    i++
+){
+
+    const beam =
+        new THREE.Mesh(
+
+            new THREE.CylinderGeometry(
+                .04,
+                .45,
+                8,
+                32,
+                1,
+                true
+            ),
+
+            new THREE.MeshBasicMaterial({
+
+                color:0x6fd8ff,
+
+                transparent:true,
+
+                opacity:.22,
+
+                blending:
+                    THREE.AdditiveBlending
+
+            })
+
+        );
+
+    beam.rotation.z =
+        Math.PI/2;
+
+    if(i===0)
+        beam.position.x=4;
+
+    else
+        beam.position.x=-4;
+
+    pulsar.add(
+        beam
+    );
+
+}
+
+scene.add(
+    pulsar
+);
+
+objects["Pulsar"]=
+    pulsar;
+
+
+// =====================================================
+// QUASAR
+// =====================================================
+
+const quasar =
+    new THREE.Group();
+
+quasar.position.set(
+    -15,
+    -6,
+    -30
+);
+
+const qCore =
+    new THREE.Mesh(
+
+        new THREE.SphereGeometry(
+            .7,
+            32,
+            32
+        ),
+
+        new THREE.MeshBasicMaterial({
+            color:0xffffff
+        })
+
+    );
+
+quasar.add(qCore);
+
+
+const qDisk =
+    new THREE.Mesh(
+
+        new THREE.RingGeometry(
+            1,
+            3,
+            96
+        ),
+
+        new THREE.MeshBasicMaterial({
+
+            color:0xffb04f,
+
+            transparent:true,
+
+            opacity:.65,
+
+            side:THREE.DoubleSide,
+
+            blending:
+                THREE.AdditiveBlending
+
+        })
+
+    );
+
+qDisk.rotation.x =
+    Math.PI/2;
+
+quasar.add(qDisk);
+
+scene.add(
+    quasar
+);
+
+objects["Quasar"]=
+    quasar;
+
+
+// =====================================================
+// INFORMATION DATABASE
+// =====================================================
+
+const info = {
+
+    "Sun":{
+        type:"STAR",
+        description:"The star at the center of our Solar System.",
+        radius:"696,340 km",
+        mass:"1.989 × 10³⁰ kg",
+        distance:"0 AU",
+        category:"G-type star"
+    },
+
+    "Earth":{
+        type:"PLANET",
+        description:"Our home planet and the third planet from the Sun.",
+        radius:"6,371 km",
+        mass:"5.972 × 10²⁴ kg",
+        distance:"149.6 million km",
+        category:"Terrestrial"
+    },
+
+    "Mars":{
+        type:"PLANET",
+        description:"A cold terrestrial world with a thin atmosphere.",
+        radius:"3,389.5 km",
+        mass:"6.39 × 10²³ kg",
+        distance:"227.9 million km",
+        category:"Terrestrial"
+    },
+
+    "Jupiter":{
+        type:"PLANET",
+        description:"The largest planet in our Solar System.",
+        radius:"69,911 km",
+        mass:"1.898 × 10²⁷ kg",
+        distance:"778.5 million km",
+        category:"Gas giant"
+    },
+
+    "Saturn":{
+        type:"PLANET",
+        description:"A gas giant famous for its spectacular ring system.",
+        radius:"58,232 km",
+        mass:"5.683 × 10²⁶ kg",
+        distance:"1.43 billion km",
+        category:"Gas giant"
+    },
+
+    "Black Hole":{
+        type:"BLACK HOLE",
+        description:"A visualization of a black hole with an accretion disk.",
+        radius:"Model visualization",
+        mass:"Depends on object",
+        distance:"Deep space",
+        category:"Compact object"
+    },
+
+    "Pulsar":{
+        type:"PULSAR",
+        description:"A rapidly rotating neutron-star visualization.",
+        radius:"~10 km",
+        mass:"~1.4 solar masses",
+        distance:"Deep space",
+        category:"Neutron star"
+    },
+
+    "Quasar":{
+        type:"QUASAR",
+        description:"A visualization of an extremely luminous active galactic nucleus.",
+        radius:"System dependent",
+        mass:"Supermassive black hole",
+        distance:"Cosmological",
+        category:"Active galaxy"
+    }
+
+};
+
+
+// =====================================================
+// UI
+// =====================================================
+
+const typeEl =
+    document.getElementById("type");
+
+const nameEl =
+    document.getElementById("name");
+
+const descriptionEl =
+    document.getElementById("description");
+
+const radiusEl =
+    document.getElementById("radius");
+
+const massEl =
+    document.getElementById("mass");
+
+const distanceEl =
+    document.getElementById("distance");
+
+const categoryEl =
+    document.getElementById("category");
+
+
+let selected =
+    "Earth";
+
+
+function selectObject(
+    name
+){
+
+    selected =
+        name;
+
+    const data =
+        info[name];
+
+    if(!data)
+        return;
+
+    typeEl.textContent =
+        data.type;
+
+    nameEl.textContent =
+        name;
+
+    descriptionEl.textContent =
+        data.description;
+
+    radiusEl.textContent =
+        data.radius;
+
+    massEl.textContent =
+        data.mass;
+
+    distanceEl.textContent =
+        data.distance;
+
+    categoryEl.textContent =
+        data.category;
+
+
+    focusObject(name);
+}
+
+
+document
+.querySelectorAll(".object-button")
+.forEach(button=>{
+
+    button.addEventListener(
+        "click",
+        ()=>{
+
+            const name =
+                button.dataset.object;
+
+            if(
+                name === "Solar System"
+            ){
+
+                controls.target.set(
+                    0,0,0
+                );
+
+                camera.position.set(
+                    0,12,30
+                );
+
+                return;
+            }
+
+            if(
+                name === "Deep Space"
+            ){
+
+                camera.position.set(
+                    0,50,100
+                );
+
+                controls.target.set(
+                    0,0,0
+                );
+
+                return;
+            }
+
+            selectObject(name);
+
+        }
+    );
+
+});
+
+
+// =====================================================
+// CAMERA FOCUS
+// =====================================================
+
+function focusObject(
+    name
+){
+
+    const object =
+        objects[name];
+
+    if(!object)
+        return;
+
+    const target =
+        new THREE.Vector3();
+
+    object.getWorldPosition(
+        target
+    );
+
+    controls.target.copy(
+        target
+    );
+
+    const direction =
+        new THREE.Vector3()
+        .subVectors(
+            camera.position,
+            target
+        )
+        .normalize();
+
+    camera.position.copy(
+        target
+    )
+    .add(
+        direction.multiplyScalar(
+            name === "Sun"
+            ? 12
+            : 5
+        )
+    );
+
+}
+
+
+// =====================================================
+// SEARCH
+// =====================================================
+
+const search =
+    document.getElementById(
+        "search"
+    );
+
+search.addEventListener(
+    "keydown",
+    event=>{
+
+        if(
+            event.key !== "Enter"
+        )
+            return;
+
+        const query =
+            search.value
+            .trim()
+            .toLowerCase();
+
+        const match =
+            Object.keys(info)
+            .find(
+                name =>
+                    name.toLowerCase()
+                    .includes(query)
+            );
+
+        if(match){
+
+            selectObject(
+                match
+            );
+
+        }
+
+    }
+);
+
+
+// =====================================================
+// SIMULATION
+// =====================================================
+
+let paused =
+    false;
+
+let speed =
+    1;
+
+const speedEl =
+    document.getElementById(
+        "speed"
+    );
+
+
+document
+.getElementById("pause")
+.addEventListener(
+    "click",
+    ()=>{
+
+        paused =
+            !paused;
+
+        document.getElementById(
+            "pause"
+        ).textContent =
+            paused
+            ? "▶"
+            : "❚❚";
+
+    }
+);
+
+
+document
+.getElementById("faster")
+.addEventListener(
+    "click",
+    ()=>{
+
+        speed =
+            Math.min(
+                speed*2,
+                1024
+            );
+
+        speedEl.textContent =
+            speed+"×";
+
+    }
+);
+
+
+document
+.getElementById("slower")
+.addEventListener(
+    "click",
+    ()=>{
+
+        speed =
+            Math.max(
+                speed/2,
+                .125
+            );
+
+        speedEl.textContent =
+            speed+"×";
+
+    }
+);
+
+
+document
+.getElementById("reset")
+.addEventListener(
+    "click",
+    ()=>{
+
+        camera.position.set(
+            0,7,18
+        );
+
+        controls.target.set(
+            0,0,0
+        );
+
+        speed=1;
+
+        speedEl.textContent =
+            "1×";
+
+    }
+);
+
+
+// =====================================================
+// LABELS
+// =====================================================
+
+let labelsEnabled =
+    false;
+
+const label =
+    document.getElementById(
+        "label"
+    );
+
+document
+.getElementById("labels")
+.addEventListener(
+    "click",
+    ()=>{
+
+        labelsEnabled =
+            !labelsEnabled;
+
+        label.style.display =
+            labelsEnabled
+            ? "block"
+            : "none";
+
+    }
+);
+
+
+// =====================================================
+// ANIMATION
+// =====================================================
+
+const clock =
+    new THREE.Clock();
+
+
+function animate(){
+
+    requestAnimationFrame(
+        animate
+    );
+
+    const delta =
+        clock.getDelta();
+
+    if(!paused){
+
+        sun.rotation.y +=
+            delta*.05;
+
+        earth.userData.planet.rotation.y +=
+            delta*.5;
+
+        moon.rotation.y +=
+            delta;
+
+        Object.keys(objects)
+        .forEach(name=>{
+
+            const obj =
+                objects[name];
+
+            if(
+                obj.userData &&
+                obj.userData.speed
+            ){
+
+                obj.rotation.y +=
+                    delta *
+                    obj.userData.speed *
+                    speed *
+                    10;
+
+            }
+
+        });
+
+        blackHole.rotation.y +=
+            delta*.3;
+
+        disk.rotation.z +=
+            delta*.8;
+
+        pulsar.rotation.y +=
+            delta*3;
+
+        quasar.rotation.y +=
+            delta*.2;
+
+    }
+
+
+    stars.rotation.y +=
+        delta*.0005;
+
+
+    controls.update();
+
+    renderer.render(
+        scene,
+        camera
+    );
+
+
+    // LABEL
+
+    if(
+        labelsEnabled &&
+        objects[selected]
+    ){
+
+        const position =
+            new THREE.Vector3();
+
+        objects[selected]
+        .getWorldPosition(
+            position
+        );
+
+        position.project(
+            camera
+        );
+
+        const x =
+            (position.x*.5+.5)
+            *window.innerWidth;
+
+        const y =
+            (-position.y*.5+.5)
+            *window.innerHeight;
+
+        label.textContent =
+            selected;
+
+        label.style.left =
+            x+"px";
+
+        label.style.top =
+            y+"px";
+
+    }
+
+}
+
+animate();
+
+
+// =====================================================
+// RESIZE
+// =====================================================
+
+window.addEventListener(
+    "resize",
+    ()=>{
+
+        camera.aspect =
+            window.innerWidth /
+            window.innerHeight;
+
+        camera.updateProjectionMatrix();
+
+        renderer.setSize(
+            window.innerWidth,
+            window.innerHeight
+        );
+
+        renderer.setPixelRatio(
+            Math.min(
+                window.devicePixelRatio,
+                2
+            )
+        );
+
+    }
+);
+
+</script>
+
+</body>
+</html>
