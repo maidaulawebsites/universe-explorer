@@ -1,89 +1,11 @@
 {
-  "sun": {
-    "name": "Sun",
-    "type": "star",
-    "radiusKm": 696340,
-    "massKg": 1.989e30,
-    "color": "#ffd27a"
-  },
-
-  "mercury": {
-    "name": "Mercury",
-    "type": "planet",
-    "radiusKm": 2439.7,
-    "massKg": 3.3011e23,
-    "distanceFromSunKm": 57909050,
-    "orbitalPeriodDays": 87.969,
-    "rotationPeriodHours": 1407.6
-  },
-
-  "venus": {
-    "name": "Venus",
-    "type": "planet",
-    "radiusKm": 6051.8,
-    "massKg": 4.8675e24,
-    "distanceFromSunKm": 108208000,
-    "orbitalPeriodDays": 224.701,
-    "rotationPeriodHours": -5832.5
-  },
-
-  "earth": {
-    "name": "Earth",
-    "type": "planet",
-    "radiusKm": 6371,
-    "massKg": 5.97237e24,
-    "distanceFromSunKm": 149597870,
-    "orbitalPeriodDays": 365.256,
-    "rotationPeriodHours": 23.934
-  },
-
-  "mars": {
-    "name": "Mars",
-    "type": "planet",
-    "radiusKm": 3389.5,
-    "massKg": 6.4171e23,
-    "distanceFromSunKm": 227939200,
-    "orbitalPeriodDays": 686.98,
-    "rotationPeriodHours": 24.623
-  },
-
-  "jupiter": {
-    "name": "Jupiter",
-    "type": "planet",
-    "radiusKm": 69911,
-    "massKg": 1.89813e27,
-    "distanceFromSunKm": 778479000,
-    "orbitalPeriodDays": 4332.59,
-    "rotationPeriodHours": 9.925
-  },
-
-  "saturn": {
-    "name": "Saturn",
-    "type": "planet",
-    "radiusKm": 58232,
-    "massKg": 5.6834e26,
-    "distanceFromSunKm": 1433530000,
-    "orbitalPeriodDays": 10759.22,
-    "rotationPeriodHours": 10.656
-  },
-
-  "uranus": {
-    "name": "Uranus",
-    "type": "planet",
-    "radiusKm": 25362,
-    "massKg": 8.6810e25,
-    "distanceFromSunKm": 2872460000,
-    "orbitalPeriodDays": 30688.5,
-    "rotationPeriodHours": -17.24
-  },
-
-  "neptune": {
-    "name": "Neptune",
-    "type": "planet",
-    "radiusKm": 24622,
-    "massKg": 1.02413e26,
-    "distanceFromSunKm": 4495060000,
-    "orbitalPeriodDays": 60182,
-    "rotationPeriodHours": 16.11
-  }
+  "sun": {"name":"Sun","type":"star","radiusKm":696340,"massKg":1.989e30,"color":"#ffd27a"},
+  "mercury": {"name":"Mercury","type":"planet","radiusKm":2439.7,"massKg":3.3011e23,"distanceFromSunKm":57909050,"orbitalPeriodDays":87.969,"rotationPeriodHours":1407.6},
+  "venus": {"name":"Venus","type":"planet","radiusKm":6051.8,"massKg":4.8675e24,"distanceFromSunKm":108208000,"orbitalPeriodDays":224.701,"rotationPeriodHours":-5832.5},
+  "earth": {"name":"Earth","type":"planet","radiusKm":6371,"massKg":5.97237e24,"distanceFromSunKm":149597870,"orbitalPeriodDays":365.256,"rotationPeriodHours":23.934},
+  "mars": {"name":"Mars","type":"planet","radiusKm":3389.5,"massKg":6.4171e23,"distanceFromSunKm":227939200,"orbitalPeriodDays":686.98,"rotationPeriodHours":24.623},
+  "jupiter": {"name":"Jupiter","type":"planet","radiusKm":69911,"massKg":1.89813e27,"distanceFromSunKm":778479000,"orbitalPeriodDays":4332.59,"rotationPeriodHours":9.925},
+  "saturn": {"name":"Saturn","type":"planet","radiusKm":58232,"massKg":5.6834e26,"distanceFromSunKm":1433530000,"orbitalPeriodDays":10759.22,"rotationPeriodHours":10.656},
+  "uranus": {"name":"Uranus","type":"planet","radiusKm":25362,"massKg":8.6810e25,"distanceFromSunKm":2872460000,"orbitalPeriodDays":30688.5,"rotationPeriodHours":-17.24},
+  "neptune": {"name":"Neptune","type":"planet","radiusKm":24622,"massKg":1.02413e26,"distanceFromSunKm":4495060000,"orbitalPeriodDays":60182,"rotationPeriodHours":16.11}
 }
