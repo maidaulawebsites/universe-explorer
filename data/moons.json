@@ -1,0 +1,10 @@
+[
+ {"name":"Moon","parent":"Earth","radiusKm":1737.4,"distanceFromParentKm":384400,"orbitalPeriodDays":27.321661},
+ {"name":"Io","parent":"Jupiter","radiusKm":1821.6,"distanceFromParentKm":421700,"orbitalPeriodDays":1.769},
+ {"name":"Europa","parent":"Jupiter","radiusKm":1560.8,"distanceFromParentKm":671100,"orbitalPeriodDays":3.551},
+ {"name":"Ganymede","parent":"Jupiter","radiusKm":2634.1,"distanceFromParentKm":1070400,"orbitalPeriodDays":7.155},
+ {"name":"Callisto","parent":"Jupiter","radiusKm":2410.3,"distanceFromParentKm":1882700,"orbitalPeriodDays":16.689},
+ {"name":"Enceladus","parent":"Saturn","radiusKm":252.1,"distanceFromParentKm":237948,"orbitalPeriodDays":1.370},
+ {"name":"Titan","parent":"Saturn","radiusKm":2574.7,"distanceFromParentKm":1221870,"orbitalPeriodDays":15.945},
+ {"name":"Triton","parent":"Neptune","radiusKm":1353.4,"distanceFromParentKm":354759,"orbitalPeriodDays":5.877}
+]
